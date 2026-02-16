@@ -3,3 +3,4 @@
 /target/
 /.idea/
 benchmark-results-*.json
+/src/main/frontend/generated/*

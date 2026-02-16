@@ -29,7 +29,13 @@ import java.util.concurrent.*;
  * Detects system information, runs comprehensive Java benchmarks using Renaissance,
  * and submits results to central API.
  *
- * Usage: jbang BenchmarkRunner.java [--skip-upload]
+ * Usage from source:
+ * jbang BenchmarkRunner.java
+ *
+ * Usage directly from GitHub:
+ * jbang FDelporte/sbc-java-comparison@main/benchmark/BenchmarkRunner.java
+ *
+ * Add `--skip-upload` if the results should not be uploaded to the central API.
  */
 public class BenchmarkRunner {
 

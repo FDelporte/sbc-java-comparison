@@ -29,7 +29,6 @@ jobs:
         with:
           distribution: zulu
           java-version: "25"
-          cache: "maven"
 
       - name: Set up jbang
         uses: jbangdev/setup-jbang@main

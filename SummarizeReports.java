@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SummarizeReports {
@@ -24,7 +23,10 @@ public class SummarizeReports {
         Path summaryFile = Path.of("summary.json");
 
         if (!Files.isDirectory(reportDir)) {
-            throw new IllegalStateException("Missing report directory: " + reportDir.toAbsolutePath());
+            System.out.println("Report directory not found: " + reportDir.toAbsolutePath());
+            System.out.println("Writing empty " + summaryFile + " and exiting.");
+            writeSummary(summaryFile, List.of());
+            return;
         }
 
         List<BenchmarkSubmission> all = loadAllSubmissions(reportDir);
@@ -58,7 +60,6 @@ public class SummarizeReports {
                     BenchmarkSubmission sub = MAPPER.readValue(Files.readString(f), BenchmarkSubmission.class);
                     out.add(sub);
                 } catch (Exception e) {
-                    // Skip broken files but make it obvious
                     System.err.println("Skipping unreadable JSON: " + f + " (" + e.getMessage() + ")");
                 }
             }
@@ -67,8 +68,6 @@ public class SummarizeReports {
     }
 
     private static List<BenchmarkSubmission> dedupeByCpu(List<BenchmarkSubmission> submissions) {
-        // Keep the newest entry per CPU signature (based on timestamp if present),
-        // otherwise the first one encountered.
         Map<CpuKey, BenchmarkSubmission> best = new LinkedHashMap<>();
 
         for (BenchmarkSubmission s : submissions) {
@@ -91,7 +90,6 @@ public class SummarizeReports {
             if (existing == null) {
                 best.put(key, s);
             } else {
-                // Prefer the one with the "later" timestamp lexicographically (ISO-8601 sorts naturally)
                 String tNew = nullToEmpty(s.timestamp());
                 String tOld = nullToEmpty(existing.timestamp());
                 if (tNew.compareTo(tOld) > 0) {
@@ -104,7 +102,6 @@ public class SummarizeReports {
     }
 
     private static void writeSummary(Path summaryFile, List<BenchmarkSubmission> unique) throws IOException {
-        // Export as an array; easy to consume later.
         Files.writeString(summaryFile, MAPPER.writeValueAsString(unique),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }

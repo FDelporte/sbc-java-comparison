@@ -24,6 +24,13 @@ jobs:
           # needed so we can push back to the repo
           fetch-depth: 0
 
+      - name: Sanity check workspace
+        run: |
+          set -euo pipefail
+          pwd
+          ls -la
+          ls -la report || true
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:

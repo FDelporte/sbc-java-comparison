@@ -32,7 +32,7 @@ jobs:
           cache: "maven"
 
       - name: Set up jbang
-        uses: jbangdev/setup-jbang@v0.3.1
+        uses: jbangdev/setup-jbang@v2
 
       - name: Generate summary.json
         run: jbang SummarizeReports.java

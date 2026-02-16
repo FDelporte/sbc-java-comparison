@@ -1,6 +1,4 @@
-/benchmark/harness*/
-/benchmark/launcher*/
-/target/
 /.idea/
+/harness*/
+/launcher*/
 benchmark-results-*.json
-/src/main/frontend/generated/*

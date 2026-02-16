@@ -1,0 +1,55 @@
+name: Update summary.json
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-summary-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-summary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # needed so we can push back to the repo
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "25"
+          cache: "maven"
+
+      - name: Set up jbang
+        uses: jbangdev/setup-jbang@v0.3.1
+
+      - name: Generate summary.json
+        run: jbang SummarizeReports.java
+
+      - name: Commit summary.json (only on main pushes)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- summary.json; then
+            echo "summary.json unchanged; nothing to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add summary.json
+          git commit -m "chore: update summary.json [skip ci]"
+          git push

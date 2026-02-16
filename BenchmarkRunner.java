@@ -13,33 +13,38 @@ import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
 
 import java.io.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 /**
  * SBC Java Performance Benchmark Runner using Renaissance Suite
  *
  * Detects system information, runs comprehensive Java benchmarks using Renaissance,
- * and submits results to central API.
+ * and saves results locally + pushes them to a configurable GitHub repository (in the "report" directory).
  *
  * Usage from source:
  * jbang BenchmarkRunner.java
  *
  * Usage directly from GitHub:
- * jbang FDelporte/sbc-java-comparison@main/benchmark/BenchmarkRunner.java
+ * jbang FDelporte/sbc-java-comparison@main/BenchmarkRunner.java
  *
- * Add `--skip-upload` if the results should not be uploaded to the central API.
+ * Add `--skip-push` if the results should not be pushed to GitHub.
+ *
+ * GitHub push configuration (environment variables):
+ * - BENCH_GITHUB_REPO   (required unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
+ * - BENCH_GITHUB_BRANCH (optional): default "main"
+ * - BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
+ *
+ * Note: Authentication is handled by your Git setup (SSH agent, credential helper, etc.).
  */
 public class BenchmarkRunner {
 
-    private static final String API_ENDPOINT = "https://sbc.codewriter.be/api/upload";
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     private static final String RENAISSANCE_VERSION = "0.15.0";
     private static final String RENAISSANCE_URL = "https://github.com/renaissance-benchmarks/renaissance/releases/download/v"
@@ -55,7 +60,7 @@ public class BenchmarkRunner {
     };
 
     public static void main(String[] args) throws Exception {
-        boolean skipUpload = Arrays.asList(args).contains("--skip-upload");
+        boolean skipPush = Arrays.asList(args).contains("--skip-push");
 
         System.out.println("=".repeat(70));
         System.out.println("  SBC Java Performance Benchmark Suite (Renaissance)");
@@ -78,16 +83,16 @@ public class BenchmarkRunner {
         List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar);
         System.out.println();
 
-        // Step 4: Submit results
+        // Step 4: Save + Push results
         System.out.println("[4/4] Processing results...");
         BenchmarkSubmission submission = new BenchmarkSubmission(sysInfo, results, Instant.now().toString());
 
-        saveResultsLocally(submission);
+        Path resultsFile = saveResultsLocally(submission);
 
-        if (!skipUpload) {
-            submitResults(submission);
+        if (!skipPush) {
+            pushResultsToGitHubRepo(resultsFile);
         } else {
-            System.out.println("⚠ Skipping upload (--skip-upload flag set)");
+            System.out.println("⚠ Skipping GitHub push (--skip-push flag set)");
         }
 
         System.out.println();
@@ -311,47 +316,133 @@ public class BenchmarkRunner {
         return new BoardInfo(model, manufacturer, revision);
     }
 
-
-    private static void saveResultsLocally(BenchmarkSubmission submission) {
+    private static Path saveResultsLocally(BenchmarkSubmission submission) {
         try {
             String timestamp = Instant.now().toString().replace(":", "-");
             String filename = "benchmark-results-" + timestamp + ".json";
-            Path outputPath = Path.of(filename);
+
+            // Save into the local project's "report" directory
+            Path reportDir = Path.of("report");
+            Files.createDirectories(reportDir);
+
+            Path outputPath = reportDir.resolve(filename);
 
             Files.writeString(outputPath, MAPPER.writeValueAsString(submission));
             System.out.println("✓ Results saved to: " + outputPath.toAbsolutePath());
+            return outputPath;
         } catch (IOException e) {
-            System.err.println("✗ Failed to save results locally: " + e.getMessage());
+            throw new UncheckedIOException("✗ Failed to save results locally: " + e.getMessage(), e);
         }
     }
 
-    private static void submitResults(BenchmarkSubmission submission) {
-        System.out.println("⚡ Submitting results to " + API_ENDPOINT + "...");
+    private static void pushResultsToGitHubRepo(Path resultsFile) {
+        String repoUrl = getenvTrimmed("BENCH_GITHUB_REPO");
+        if (repoUrl == null || repoUrl.isBlank()) {
+            throw new IllegalStateException(
+                    "BENCH_GITHUB_REPO is required to push results (or run with --skip-push). " +
+                    "Example: git@github.com:<owner>/<repo>.git"
+            );
+        }
+
+        String branch = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_BRANCH")).filter(s -> !s.isBlank()).orElse("main");
+        Path cloneDir = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_DIR"))
+                .filter(s -> !s.isBlank())
+                .map(Path::of)
+                .orElse(Path.of(System.getProperty("user.home"), ".cache", "sbc-java-comparison-report-repo"));
+
+        System.out.println("⚡ Pushing results file to GitHub repository...");
+        System.out.println("  Repo: " + redactRepoUrl(repoUrl));
+        System.out.println("  Branch: " + branch);
+        System.out.println("  Local clone: " + cloneDir.toAbsolutePath());
 
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            String jsonBody = MAPPER.writeValueAsString(submission);
+            ensureGitAvailable();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_ENDPOINT))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                System.out.println("✓ Results successfully uploaded!");
-                System.out.println("  Response: " + response.body());
+            if (Files.notExists(cloneDir.resolve(".git"))) {
+                Files.createDirectories(cloneDir.getParent());
+                runGit(cloneDir.getParent(), "clone", "--branch", branch, "--single-branch", repoUrl, cloneDir.toString());
             } else {
-                System.err.println("✗ Upload failed with status code: " + response.statusCode());
-                System.err.println("  Response: " + response.body());
+                runGit(cloneDir, "fetch", "origin", branch);
+                runGit(cloneDir, "checkout", branch);
+                runGit(cloneDir, "pull", "--ff-only", "origin", branch);
             }
 
-        } catch (Exception e) {
-            System.err.println("✗ Failed to upload results: " + e.getMessage());
-            e.printStackTrace();
+            Path targetReportDir = cloneDir.resolve("report");
+            Files.createDirectories(targetReportDir);
+
+            Path targetFile = targetReportDir.resolve(resultsFile.getFileName().toString());
+            Files.copy(resultsFile, targetFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            runGit(cloneDir, "add", "report/" + resultsFile.getFileName());
+
+            // Commit may fail if nothing changed; handle that gracefully.
+            String commitMsg = "Add benchmark results " + resultsFile.getFileName();
+            int commitExit = runGitAllowFailure(cloneDir, "commit", "-m", commitMsg);
+            if (commitExit != 0) {
+                System.out.println("  ↪ No commit created (possibly no changes to commit).");
+            }
+
+            runGit(cloneDir, "push", "origin", branch);
+
+            System.out.println("✓ Results pushed to GitHub (report/" + resultsFile.getFileName() + ")");
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to push results to GitHub: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Git operation interrupted", e);
         }
+    }
+
+    private static void ensureGitAvailable() throws IOException, InterruptedException {
+        int exit = runGitAllowFailure(Path.of("."), "--version");
+        if (exit != 0) {
+            throw new IllegalStateException("git is required but was not found or not runnable on PATH.");
+        }
+    }
+
+    private static void runGit(Path workingDir, String... args) throws IOException, InterruptedException {
+        int exit = runGitAllowFailure(workingDir, args);
+        if (exit != 0) {
+            throw new IOException("git command failed with exit code " + exit + " (args=" + Arrays.toString(args) + ")");
+        }
+    }
+
+    private static int runGitAllowFailure(Path workingDir, String... args) throws IOException, InterruptedException {
+        List<String> cmd = new ArrayList<>();
+        cmd.add("git");
+        cmd.addAll(Arrays.asList(args));
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(workingDir.toFile());
+        pb.redirectErrorStream(true);
+
+        Process p = pb.start();
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                System.out.println("  git> " + line);
+            }
+        }
+        return p.waitFor();
+    }
+
+    private static String getenvTrimmed(String key) {
+        String v = System.getenv(key);
+        return v == null ? null : v.trim();
+    }
+
+    private static String redactRepoUrl(String repoUrl) {
+        // Avoid ever printing something that might include embedded credentials.
+        // - For https://user:token@github.com/... => https://***@github.com/...
+        // - For https://token@github.com/...     => https://***@github.com/...
+        int schemeIdx = repoUrl.indexOf("://");
+        if (schemeIdx > 0) {
+            int atIdx = repoUrl.indexOf('@', schemeIdx + 3);
+            if (atIdx > 0) {
+                return repoUrl.substring(0, schemeIdx + 3) + "***" + repoUrl.substring(atIdx);
+            }
+        }
+        return repoUrl;
     }
 
     // Data classes

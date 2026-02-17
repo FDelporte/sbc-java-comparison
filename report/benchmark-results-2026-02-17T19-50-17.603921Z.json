@@ -1,4 +1,4 @@
-[ {
+{
   "systemInfo" : {
     "boardInfo" : {
       "model" : "Unknown",
@@ -72,4 +72,4 @@
     "description" : "Renaissance: db-shootout"
   } ],
   "timestamp" : "2026-02-17T19:50:17.603621Z"
-} ]
+}

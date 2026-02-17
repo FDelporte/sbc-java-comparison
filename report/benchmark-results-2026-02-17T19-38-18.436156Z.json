@@ -1,4 +1,4 @@
-[ {
+{
   "systemInfo" : {
     "boardInfo" : {
       "model" : "Unknown",
@@ -15,7 +15,7 @@
     },
     "memoryInfo" : {
       "totalMB" : 49152,
-      "availableMB" : 23050
+      "availableMB" : 21846
     },
     "jvmInfo" : {
       "version" : "25",
@@ -32,44 +32,29 @@
   },
   "results" : [ {
     "name" : "akka-uct",
-    "score" : 7760.0,
+    "score" : 7856.666666666667,
     "unit" : "ms",
     "description" : "Renaissance: akka-uct"
   }, {
     "name" : "fj-kmeans",
-    "score" : 2651.6666666666665,
+    "score" : 2684.0,
     "unit" : "ms",
     "description" : "Renaissance: fj-kmeans"
   }, {
-    "name" : "scala-kmeans",
-    "score" : 1916.3333333333333,
-    "unit" : "ms",
-    "description" : "Renaissance: scala-kmeans"
-  }, {
     "name" : "future-genetic",
-    "score" : 2683.0,
+    "score" : 2730.6666666666665,
     "unit" : "ms",
     "description" : "Renaissance: future-genetic"
   }, {
     "name" : "mnemonics",
-    "score" : 3136.0,
+    "score" : 3241.0,
     "unit" : "ms",
     "description" : "Renaissance: mnemonics"
   }, {
     "name" : "par-mnemonics",
-    "score" : 2936.0,
+    "score" : 2938.6666666666665,
     "unit" : "ms",
     "description" : "Renaissance: par-mnemonics"
-  }, {
-    "name" : "scrabble",
-    "score" : -1.0,
-    "unit" : "ms",
-    "description" : "Error: No successful runs"
-  }, {
-    "name" : "db-shootout",
-    "score" : 1632.3333333333333,
-    "unit" : "ms",
-    "description" : "Renaissance: db-shootout"
   } ],
-  "timestamp" : "2026-02-17T19:50:17.603621Z"
-} ]
+  "timestamp" : "2026-02-17T19:38:18.435753Z"
+}

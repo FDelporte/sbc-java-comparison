@@ -1,4 +1,4 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
+/// usr/bin/env jbang "$0" "$@" ; exit $?
 
 //JAVA 25
 
@@ -24,23 +24,23 @@ import java.net.http.HttpResponse;
 
 /**
  * SBC Java Performance Benchmark Runner using Renaissance Suite
- *
+ * <p>
  * Detects system information, runs comprehensive Java benchmarks using Renaissance,
  * and saves results locally + pushes them to a configurable GitHub repository (in the "report" directory).
- *
+ * <p>
  * Usage from source:
  * jbang BenchmarkRunner.java
- *
+ * <p>
  * Usage directly from GitHub:
  * jbang FDelporte/sbc-java-comparison@main/BenchmarkRunner.java
- *
+ * <p>
  * Add `--skip-push` if the results should not be pushed to GitHub.
- *
+ * <p>
  * GitHub push configuration (environment variables):
  * - BENCH_GITHUB_REPO   (required unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
  * - BENCH_GITHUB_BRANCH (optional): default "main"
  * - BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
- *
+ * <p>
  * Note: Authentication is handled by your Git setup (SSH agent, credential helper, etc.).
  */
 public class BenchmarkRunner {
@@ -51,12 +51,38 @@ public class BenchmarkRunner {
             + RENAISSANCE_VERSION + "/renaissance-mit-" + RENAISSANCE_VERSION + ".jar";
 
     // Selected benchmarks - fast enough for quick testing
+    // https://renaissance.dev/docs
     private static final String[] BENCHMARKS = {
-        "akka-uct",        // Actor-based Monte Carlo tree search
-        "fj-kmeans",       // Fork/Join k-means clustering
-        "future-genetic",  // Genetic algorithm with Futures
-        "mnemonics",       // Dictionary operations
-        "par-mnemonics",   // Parallel dictionary operations
+            // No Apache Spark tests, as they memory-hungry (they recommend -Xss4m just to avoid StackOverflows),
+            // take many minutes per run, and are really designed for multi-core server machines.
+            // They'll either OOM or take forever on constrained boards.
+
+            // Actor-based concurrency. Interesting for comparing how well thread scheduling works across
+            // ARM, x86, and RISC-V kernels.
+            "akka-uct",
+
+            // Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well
+            // the JVM utilizes all cores on different architectures.
+            "fj-kmeans",
+            // Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core
+            // vs multi-core comparison.
+            "scala-kmeans",
+
+            // Genetic algorithm using the Jenetics library and futures
+            // Uses the Jenetics library with futures, exercises the thread pool and GC together nicely.
+            "future-genetic",
+
+            // JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta
+            // is very revealing across architectures with different core counts/memory bandwidth.
+            "mnemonics", // serial
+            "par-mnemonics", // parallel
+
+            // Pure JDK Streams computation, CPU-bound, no external dependencies, and fast. A classic clean benchmark.
+            "scrabble",
+
+            // In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily.
+            // Good for revealing memory bandwidth differences between boards.
+            "db-shootout"
     };
 
     public static void main(String[] args) throws Exception {
@@ -340,7 +366,7 @@ public class BenchmarkRunner {
         if (repoUrl == null || repoUrl.isBlank()) {
             throw new IllegalStateException(
                     "BENCH_GITHUB_REPO is required to push results (or run with --skip-push). " +
-                    "Example: git@github.com:<owner>/<repo>.git"
+                            "Example: git@github.com:<owner>/<repo>.git"
             );
         }
 
@@ -447,22 +473,30 @@ public class BenchmarkRunner {
 
     // Data classes
     record SystemInformation(BoardInfo boardInfo, CpuInfo cpuInfo, MemoryInfo memoryInfo,
-                             JvmInfo jvmInfo, OsInfo osInfo) {}
+                             JvmInfo jvmInfo, OsInfo osInfo) {
+    }
 
-    record BoardInfo(String model, String manufacturer, String revision) {}
+    record BoardInfo(String model, String manufacturer, String revision) {
+    }
 
     record CpuInfo(String model, String identifier, int logicalCores, int physicalCores,
-                   long maxFreqMhz, String architecture) {}
+                   long maxFreqMhz, String architecture) {
+    }
 
-    record MemoryInfo(long totalMB, long availableMB) {}
+    record MemoryInfo(long totalMB, long availableMB) {
+    }
 
     record JvmInfo(String version, String vendor, String vmName, String vmVersion,
-                   String runtimeVersion) {}
+                   String runtimeVersion) {
+    }
 
-    record OsInfo(String family, String version, int bitness) {}
+    record OsInfo(String family, String version, int bitness) {
+    }
 
-    record BenchmarkResult(String name, double score, String unit, String description) {}
+    record BenchmarkResult(String name, double score, String unit, String description) {
+    }
 
     record BenchmarkSubmission(SystemInformation systemInfo, List<BenchmarkResult> results,
-                               String timestamp) {}
+                               String timestamp) {
+    }
 }

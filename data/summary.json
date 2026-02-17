@@ -1,0 +1,75 @@
+[ {
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "Unknown",
+      "manufacturer" : "Unknown",
+      "revision" : "Unknown"
+    },
+    "cpuInfo" : {
+      "model" : "Apple M4 Pro",
+      "identifier" : "Apple Inc. Family 0x1b588bb3 Model 0 Stepping 0",
+      "logicalCores" : 14,
+      "physicalCores" : 14,
+      "maxFreqMhz" : 4,
+      "architecture" : "aarch64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 49152,
+      "availableMB" : 22800
+    },
+    "jvmInfo" : {
+      "version" : "25",
+      "vendor" : "Azul Systems, Inc.",
+      "vmName" : "OpenJDK 64-Bit Server VM",
+      "vmVersion" : "25+36-LTS",
+      "runtimeVersion" : "25+36-LTS"
+    },
+    "osInfo" : {
+      "family" : "macOS",
+      "version" : "26.2",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "akka-uct",
+    "score" : 7849.666666666667,
+    "unit" : "ms",
+    "description" : "Actor-based concurrency. Interesting for comparing how well thread scheduling works across ARM, x86, and RISC-V kernels."
+  }, {
+    "name" : "fj-kmeans",
+    "score" : 2691.3333333333335,
+    "unit" : "ms",
+    "description" : "Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well the JVM utilizes all cores on different architectures."
+  }, {
+    "name" : "scala-kmeans",
+    "score" : 1936.6666666666667,
+    "unit" : "ms",
+    "description" : "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  }, {
+    "name" : "future-genetic",
+    "score" : 2747.3333333333335,
+    "unit" : "ms",
+    "description" : "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  }, {
+    "name" : "mnemonics",
+    "score" : 3231.6666666666665,
+    "unit" : "ms",
+    "description" : "JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth. (serial)"
+  }, {
+    "name" : "par-mnemonics",
+    "score" : 3032.3333333333335,
+    "unit" : "ms",
+    "description" : "JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth. (parallel)"
+  }, {
+    "name" : "scrabble",
+    "score" : -1.0,
+    "unit" : "ms",
+    "description" : "Error: No successful runs"
+  }, {
+    "name" : "db-shootout",
+    "score" : 1744.3333333333333,
+    "unit" : "ms",
+    "description" : "In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily. Good for revealing memory bandwidth differences between boards."
+  } ],
+  "timestamp" : "2026-02-17T20:04:57.455029Z"
+} ]

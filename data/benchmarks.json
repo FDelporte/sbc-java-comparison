@@ -1,0 +1,34 @@
+[
+  {
+    "name": "akka-uct",
+    "description": "Actor-based concurrency. Interesting for comparing how well thread scheduling works across ARM, x86, and RISC-V kernels."
+  },
+  {
+    "name": "fj-kmeans",
+    "description": "Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well the JVM utilizes all cores on different architectures."
+  },
+  {
+    "name": "scala-kmeans",
+    "description": "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  },
+  {
+    "name": "future-genetic",
+    "description": "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  },
+  {
+    "name": "mnemonics",
+    "description": "JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth. (serial)"
+  },
+  {
+    "name": "par-mnemonics",
+    "description": "JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth. (parallel)"
+  },
+  {
+    "name": "scrabble",
+    "description": "Pure JDK Streams computation, CPU-bound, no external dependencies, and fast. A classic clean benchmark."
+  },
+  {
+    "name": "db-shootout",
+    "description": "In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily. Good for revealing memory bandwidth differences between boards."
+  }
+]

@@ -50,40 +50,12 @@ public class BenchmarkRunner {
     private static final String RENAISSANCE_URL = "https://github.com/renaissance-benchmarks/renaissance/releases/download/v"
             + RENAISSANCE_VERSION + "/renaissance-mit-" + RENAISSANCE_VERSION + ".jar";
 
-    // Selected benchmarks - fast enough for quick testing
+    // Selected benchmarks - loaded from data/benchmarks.json
     // https://renaissance.dev/docs
-    private static final String[] BENCHMARKS = {
-            // No Apache Spark tests, as they memory-hungry (they recommend -Xss4m just to avoid StackOverflows),
-            // take many minutes per run, and are really designed for multi-core server machines.
-            // They'll either OOM or take forever on constrained boards.
-
-            // Actor-based concurrency. Interesting for comparing how well thread scheduling works across
-            // ARM, x86, and RISC-V kernels.
-            "akka-uct",
-
-            // Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well
-            // the JVM utilizes all cores on different architectures.
-            "fj-kmeans",
-            // Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core
-            // vs multi-core comparison.
-            "scala-kmeans",
-
-            // Genetic algorithm using the Jenetics library and futures
-            // Uses the Jenetics library with futures, exercises the thread pool and GC together nicely.
-            "future-genetic",
-
-            // JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta
-            // is very revealing across architectures with different core counts/memory bandwidth.
-            "mnemonics", // serial
-            "par-mnemonics", // parallel
-
-            // Pure JDK Streams computation, CPU-bound, no external dependencies, and fast. A classic clean benchmark.
-            "scrabble",
-
-            // In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily.
-            // Good for revealing memory bandwidth differences between boards.
-            "db-shootout"
-    };
+    // No Apache Spark tests, as they memory-hungry (they recommend -Xss4m just to avoid StackOverflows),
+    // take many minutes per run, and are really designed for multi-core server machines.
+    // They'll either OOM or take forever on constrained boards.
+    private static List<BenchmarkDefinition> BENCHMARKS;
 
     public static void main(String[] args) throws Exception {
         boolean skipPush = Arrays.asList(args).contains("--skip-push");
@@ -92,6 +64,9 @@ public class BenchmarkRunner {
         System.out.println("  SBC Java Performance Benchmark Suite (Renaissance)");
         System.out.println("=".repeat(70));
         System.out.println();
+
+        // Step 0: Load benchmarks
+        loadBenchmarks();
 
         // Step 1: Detect system information
         System.out.println("[1/4] Detecting system information...");
@@ -167,10 +142,19 @@ public class BenchmarkRunner {
         }
     }
 
+    private static void loadBenchmarks() throws IOException {
+        Path benchmarksFile = Path.of("data/benchmarks.json");
+        BENCHMARKS = MAPPER.readValue(
+                benchmarksFile.toFile(),
+                MAPPER.getTypeFactory().constructCollectionType(List.class, BenchmarkDefinition.class)
+        );
+    }
+
     private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar) {
         List<BenchmarkResult> results = new ArrayList<>();
 
-        for (String benchmarkName : BENCHMARKS) {
+        for (BenchmarkDefinition benchmark : BENCHMARKS) {
+            String benchmarkName = benchmark.name();
             System.out.println("  → Running: " + benchmarkName);
 
             try {
@@ -220,7 +204,7 @@ public class BenchmarkRunner {
                             benchmarkName,
                             avgTimeMs,
                             "ms",
-                            "Renaissance: " + benchmarkName
+                            benchmark.description()
                     ));
                     System.out.println("     ✓ Completed: " + String.format("%.2f ms", avgTimeMs));
                 } else {
@@ -472,6 +456,9 @@ public class BenchmarkRunner {
     }
 
     // Data classes
+    record BenchmarkDefinition(String name, String description) {
+    }
+
     record SystemInformation(BoardInfo boardInfo, CpuInfo cpuInfo, MemoryInfo memoryInfo,
                              JvmInfo jvmInfo, OsInfo osInfo) {
     }

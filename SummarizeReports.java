@@ -1,4 +1,4 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
+/// usr/bin/env jbang "$0" "$@" ; exit $?
 
 //JAVA 25
 
@@ -20,7 +20,7 @@ public class SummarizeReports {
 
     public static void main(String[] args) throws Exception {
         Path reportDir = Path.of("report");
-        Path summaryFile = Path.of("summary.json");
+        Path summaryFile = Path.of("data", "summary.json");
 
         if (!Files.isDirectory(reportDir)) {
             System.out.println("Report directory not found: " + reportDir.toAbsolutePath());
@@ -110,26 +110,35 @@ public class SummarizeReports {
         return s == null ? "" : s;
     }
 
-    record CpuKey(String model, int logicalCores, int physicalCores) {}
+    record CpuKey(String model, int logicalCores, int physicalCores) {
+    }
 
     // Data classes
     record SystemInformation(BoardInfo boardInfo, CpuInfo cpuInfo, MemoryInfo memoryInfo,
-                             JvmInfo jvmInfo, OsInfo osInfo) {}
+                             JvmInfo jvmInfo, OsInfo osInfo) {
+    }
 
-    record BoardInfo(String model, String manufacturer, String revision) {}
+    record BoardInfo(String model, String manufacturer, String revision) {
+    }
 
     record CpuInfo(String model, String identifier, int logicalCores, int physicalCores,
-                   long maxFreqMhz, String architecture) {}
+                   long maxFreqMhz, String architecture) {
+    }
 
-    record MemoryInfo(long totalMB, long availableMB) {}
+    record MemoryInfo(long totalMB, long availableMB) {
+    }
 
     record JvmInfo(String version, String vendor, String vmName, String vmVersion,
-                   String runtimeVersion) {}
+                   String runtimeVersion) {
+    }
 
-    record OsInfo(String family, String version, int bitness) {}
+    record OsInfo(String family, String version, int bitness) {
+    }
 
-    record BenchmarkResult(String name, double score, String unit, String description) {}
+    record BenchmarkResult(String name, double score, String unit, String description) {
+    }
 
     record BenchmarkSubmission(SystemInformation systemInfo, List<BenchmarkResult> results,
-                               String timestamp) {}
+                               String timestamp) {
+    }
 }

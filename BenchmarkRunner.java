@@ -278,8 +278,8 @@ public class BenchmarkRunner {
 
         // CPU Information
         CpuInfo cpuInfo = new CpuInfo(
-                cpu.getProcessorIdentifier().getName(),
-                cpu.getProcessorIdentifier().getIdentifier(),
+                cpu.getProcessorIdentifier().getName().trim(),
+                cpu.getProcessorIdentifier().getIdentifier().trim(),
                 cpu.getLogicalProcessorCount(),
                 cpu.getPhysicalProcessorCount(),
                 cpu.getMaxFreq() / 1_000_000, // Convert to MHz

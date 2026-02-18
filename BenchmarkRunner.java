@@ -295,10 +295,10 @@ public class BenchmarkRunner {
         // JVM Information
         JvmInfo jvmInfo = new JvmInfo(
                 System.getProperty("java.version"),
+                System.getProperty("java.runtime.version"),
+                System.getProperty("java.vendor.version"),
                 System.getProperty("java.vendor"),
-                System.getProperty("java.vm.name"),
-                System.getProperty("java.vm.version"),
-                Runtime.version().toString()
+                System.getProperty("java.vm.name")
         );
 
         // OS Information
@@ -501,8 +501,8 @@ public class BenchmarkRunner {
     record MemoryInfo(long totalMB, long availableMB) {
     }
 
-    record JvmInfo(String version, String vendor, String vmName, String vmVersion,
-                   String runtimeVersion) {
+    record JvmInfo(String version, String runtimeVersion, String vendorVersion,
+                   String vendor, String vmName) {
     }
 
     record OsInfo(String family, String version, int bitness) {

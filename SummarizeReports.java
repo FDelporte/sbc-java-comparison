@@ -128,8 +128,8 @@ public class SummarizeReports {
     record MemoryInfo(long totalMB, long availableMB) {
     }
 
-    record JvmInfo(String version, String vendor, String vmName, String vmVersion,
-                   String runtimeVersion) {
+    record JvmInfo(String version, String runtimeVersion, String vendorVersion,
+                   String vendor, String vmName) {
     }
 
     record OsInfo(String family, String version, int bitness) {

@@ -8,7 +8,7 @@ Tool to execute Java benchmarks on a single-board computer (SBC), upload the res
 * Execute the benchmark script:
 
 ```shell
-jbang FDelporte/sbc-java-comparison@main/BenchmarkRunner.java
+jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.java
 ```
 * Add `--skip-push` if the results should not be pushed to GitHub.
 * Or configure environment variables to push the results to GitHub:

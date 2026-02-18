@@ -143,11 +143,46 @@ public class BenchmarkRunner {
     }
 
     private static void loadBenchmarks() throws IOException {
+        String benchmarksUrl = "https://github.com/FDelporte/sbc-java-comparison/raw/main/data/benchmarks.json";
+
+        // Try local file first
         Path benchmarksFile = Path.of("data/benchmarks.json");
-        BENCHMARKS = MAPPER.readValue(
-                benchmarksFile.toFile(),
-                MAPPER.getTypeFactory().constructCollectionType(List.class, BenchmarkDefinition.class)
-        );
+        if (Files.exists(benchmarksFile)) {
+            BENCHMARKS = MAPPER.readValue(
+                    benchmarksFile.toFile(),
+                    MAPPER.getTypeFactory().constructCollectionType(List.class, BenchmarkDefinition.class)
+            );
+            return;
+        }
+
+        // Fall back to GitHub URL
+        System.out.println("  → Downloading benchmarks.json from GitHub...");
+        try {
+            HttpClient client = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(benchmarksUrl))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                BENCHMARKS = MAPPER.readValue(
+                        response.body(),
+                        MAPPER.getTypeFactory().constructCollectionType(List.class, BenchmarkDefinition.class)
+                );
+                System.out.println("  ✓ Loaded " + BENCHMARKS.size() + " benchmarks from GitHub");
+            } else {
+                throw new IOException("Failed to download benchmarks.json: HTTP " + response.statusCode());
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Download interrupted", e);
+        }
     }
 
     private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar) {

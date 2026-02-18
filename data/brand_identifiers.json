@@ -2,7 +2,7 @@
   {
     "identifier": "Apple",
     "website": "https://www.apple.com/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/apple.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/apple.png",
     "color": "#3d4456",
     "filters": [
       {
@@ -14,7 +14,7 @@
   {
     "identifier" : "Raspberry Pi",
     "website": "https://www.raspberrypi.com/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/raspberrypi.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/raspberrypi.png",
     "color": "#cd2355",
     "filters": [
       {
@@ -26,7 +26,7 @@
   {
     "identifier" : "OrangePi",
     "website": "http://www.orangepi.org/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/orangepi.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/orangepi.png",
     "color": "#f4a524",
     "filters": [
       {
@@ -38,7 +38,7 @@
   {
     "identifier" : "LattePanda",
     "website": "https://www.lattepanda.com/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/lattepanda.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/lattepanda.png",
     "color": "#8c734b",
     "filters": [
       {
@@ -50,7 +50,7 @@
   {
     "identifier" : "BeagleBoard",
     "website": "https://www.beagleboard.org/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/beagleboard.svg",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/beagleboard.svg",
     "color": "#a97f2c",
     "filters": [
       {

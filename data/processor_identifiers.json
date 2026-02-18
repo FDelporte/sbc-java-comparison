@@ -2,7 +2,7 @@
   {
     "identifier": "Intel",
     "website": "https://www.intel.com/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/intel.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/intel.png",
     "color": "#0165b0",
     "filters": [
       {
@@ -14,7 +14,7 @@
   {
     "identifier" : "arm",
     "website": "https://www.arm.com/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/arm.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/arm.png",
     "color": "#1087a5",
     "filters": [
       {
@@ -26,7 +26,7 @@
   {
     "identifier" : "RISC-V",
     "website": "https://riscv.org/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/riscv.png",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/riscv.png",
     "color": "#262f6e",
     "filters": [
       {

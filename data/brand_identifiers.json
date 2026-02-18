@@ -50,7 +50,7 @@
   {
     "identifier" : "BeagleBoard",
     "website": "https://www.beagleboard.org/",
-    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/beagleboard.svg",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/beagleboard.png",
     "color": "#a97f2c",
     "filters": [
       {

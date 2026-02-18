@@ -24,10 +24,6 @@
     "description": "JDK Streams (serial vs parallel). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth. (parallel)"
   },
   {
-    "name": "scrabble",
-    "description": "Pure JDK Streams computation, CPU-bound, no external dependencies, and fast. A classic clean benchmark."
-  },
-  {
     "name": "db-shootout",
     "description": "In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily. Good for revealing memory bandwidth differences between boards."
   }

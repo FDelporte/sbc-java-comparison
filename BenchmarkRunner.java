@@ -66,26 +66,27 @@ public class BenchmarkRunner {
         System.out.println();
 
         // Step 0: Load benchmarks
+        System.out.println("[1/5] Loading benchmark definitions...");
         loadBenchmarks();
 
         // Step 1: Detect system information
-        System.out.println("[1/4] Detecting system information...");
+        System.out.println("[2/5] Detecting system information...");
         SystemInformation sysInfo = detectSystemInfo();
         System.out.println(MAPPER.writeValueAsString(sysInfo));
         System.out.println();
 
         // Step 2: Download Renaissance if needed
-        System.out.println("[2/4] Preparing Renaissance benchmark suite...");
+        System.out.println("[3/5] Preparing Renaissance benchmark suite...");
         Path renaissanceJar = downloadRenaissance();
         System.out.println();
 
         // Step 3: Run benchmarks
-        System.out.println("[3/4] Running Renaissance benchmarks...");
+        System.out.println("[4/5] Running Renaissance benchmarks...");
         List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar);
         System.out.println();
 
         // Step 4: Save + Push results
-        System.out.println("[4/4] Processing results...");
+        System.out.println("[5/5] Processing results...");
         BenchmarkSubmission submission = new BenchmarkSubmission(sysInfo, results, Instant.now().toString());
 
         Path resultsFile = saveResultsLocally(submission);
@@ -143,8 +144,6 @@ public class BenchmarkRunner {
     }
 
     private static void loadBenchmarks() throws IOException {
-        String benchmarksUrl = "https://github.com/FDelporte/sbc-java-comparison/raw/main/data/benchmarks.json";
-
         // Try local file first
         Path benchmarksFile = Path.of("data/benchmarks.json");
         if (Files.exists(benchmarksFile)) {
@@ -152,11 +151,13 @@ public class BenchmarkRunner {
                     benchmarksFile.toFile(),
                     MAPPER.getTypeFactory().constructCollectionType(List.class, BenchmarkDefinition.class)
             );
+            System.out.println("  ✓ Loaded " + BENCHMARKS.size() + " benchmarks from local file");
             return;
         }
 
         // Fall back to GitHub URL
         System.out.println("  → Downloading benchmarks.json from GitHub...");
+        String benchmarksUrl = "https://github.com/FDelporte/sbc-java-comparison/raw/main/data/benchmarks.json";
         try {
             HttpClient client = HttpClient.newBuilder()
                     .followRedirects(HttpClient.Redirect.ALWAYS)

@@ -16,3 +16,4 @@ jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.
   * BENCH_GITHUB_BRANCH (optional): default "main"
   * BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
 * If the benchmark is successful, the report will be uploaded to the GitHub repository which collects all the results.
+* If you need to re-run the benchmark after the script has been changed on GitHub, clear the JBang cache first with `jbang cache clear`.

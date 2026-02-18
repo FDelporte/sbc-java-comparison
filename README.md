@@ -12,8 +12,12 @@ jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.
 ```
 * Add `--skip-push` if the results should not be pushed to GitHub.
 * Or configure environment variables to push the results to GitHub:
-  * BENCH_GITHUB_REPO   (required unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
+  * BENCH_GITHUB_REPO   (required as you want to push this to one of your own repositories to create a merge request if you want the results to be added to this repository, unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
   * BENCH_GITHUB_BRANCH (optional): default "main"
   * BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
+  ```
+  export BENCH_GITHUB_REPO="git@github.com:your-username/your-repo.git"
+  export BENCH_GITHUB_BRANCH="mytests"  # optional, defaults to main
+  ```
 * If the benchmark is successful, the report will be uploaded to the GitHub repository which collects all the results.
 * If you need to re-run the benchmark after the script has been changed on GitHub, clear the JBang cache first with `jbang cache clear`.

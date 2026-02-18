@@ -1,0 +1,60 @@
+{
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "Unknown",
+      "manufacturer" : "Unknown",
+      "revision" : "Unknown"
+    },
+    "cpuInfo" : {
+      "model" : "Apple M2 Max",
+      "identifier" : "Apple Inc. Family 0xda33d83d Model 0 Stepping 0",
+      "logicalCores" : 12,
+      "physicalCores" : 12,
+      "maxFreqMhz" : 3696,
+      "architecture" : "aarch64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 65536,
+      "availableMB" : 23196
+    },
+    "jvmInfo" : {
+      "version" : "25",
+      "vendor" : "Azul Systems, Inc.",
+      "vmName" : "OpenJDK 64-Bit Server VM",
+      "vmVersion" : "25+36-LTS",
+      "runtimeVersion" : "25+36-LTS"
+    },
+    "osInfo" : {
+      "family" : "macOS",
+      "version" : "26.3",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "akka-uct",
+    "score" : 9465.333333333334,
+    "unit" : "ms",
+    "description" : "Renaissance: akka-uct"
+  }, {
+    "name" : "fj-kmeans",
+    "score" : 2554.0,
+    "unit" : "ms",
+    "description" : "Renaissance: fj-kmeans"
+  }, {
+    "name" : "future-genetic",
+    "score" : 2063.3333333333335,
+    "unit" : "ms",
+    "description" : "Renaissance: future-genetic"
+  }, {
+    "name" : "mnemonics",
+    "score" : 2811.3333333333335,
+    "unit" : "ms",
+    "description" : "Renaissance: mnemonics"
+  }, {
+    "name" : "par-mnemonics",
+    "score" : 2256.3333333333335,
+    "unit" : "ms",
+    "description" : "Renaissance: par-mnemonics"
+  } ],
+  "timestamp" : "2026-02-16T16:37:16.938245Z"
+}

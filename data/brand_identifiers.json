@@ -55,7 +55,7 @@
     "filters": [
       {
         "data": "systemInfo.boardinfo.model",
-        "contains": ["bb"]
+        "contains": ["bb", "beagleboard"]
       }
     ]
   },

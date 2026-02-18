@@ -4,20 +4,35 @@
     "website": "https://www.intel.com/",
     "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/intel.png",
     "color": "#0165b0",
-    "systemInfo.cpuInfo.identifier": ["intel64"]
+    "filters": [
+      {
+        "data": "systemInfo.cpuInfo.identifier",
+        "contains": ["intel64"]
+      }
+    ]
   },
   {
     "identifier" : "arm",
     "website": "https://www.arm.com/",
     "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/arm.png",
     "color": "#1087a5",
-    "systemInfo.cpuInfo.identifier" : ["arm", "apple"]
+    "filters": [
+      {
+        "data": "systemInfo.cpuInfo.identifier",
+        "contains": ["arm", "apple"]
+      }
+    ]
   },
   {
     "identifier" : "RISC-V",
     "website": "https://riscv.org/",
     "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/riscv.png",
     "color": "#262f6e",
-    "systemInfo.boardinfo.model" : ["x1"]
+    "filters": [
+      {
+        "data": "systemInfo.boardinfo.model",
+        "contains": ["x1"]
+      }
+    ]
   }
 ]

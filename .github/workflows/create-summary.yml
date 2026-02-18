@@ -48,14 +48,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          if git diff --quiet -- summary.json; then
-            echo "summary.json unchanged; nothing to commit."
+          if git diff --quiet -- data/summary.json; then
+            echo "data/summary.json unchanged; nothing to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add summary.json
+          git add data/summary.json
           git commit -m "chore: update summary.json [skip ci]"
           git push

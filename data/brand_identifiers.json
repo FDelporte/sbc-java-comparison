@@ -18,7 +18,7 @@
     "color": "#cd2355",
     "filters": [
       {
-        "data": "systemInfo.boardinfo.model",
+        "data": "systemInfo.boardInfo.model",
         "contains": ["raspberry pi"]
       }
     ]
@@ -30,7 +30,7 @@
     "color": "#f4a524",
     "filters": [
       {
-        "data": "systemInfo.boardinfo.model",
+        "data": "systemInfo.boardInfo.model",
         "contains": ["orangepi", "opi"]
       }
     ]
@@ -42,7 +42,7 @@
     "color": "#8c734b",
     "filters": [
       {
-        "data": "systemInfo.boardinfo.model",
+        "data": "systemInfo.boardInfo.model",
         "contains": ["lattepanda"]
       }
     ]
@@ -54,7 +54,7 @@
     "color": "#a97f2c",
     "filters": [
       {
-        "data": "systemInfo.boardinfo.model",
+        "data": "systemInfo.boardInfo.model",
         "contains": ["bb", "beagleboard"]
       }
     ]
@@ -66,7 +66,7 @@
     "color": "#a97f2c",
     "filters": [
       {
-        "data": "systemInfo.boardinfo.model",
+        "data": "systemInfo.boardInfo.model",
         "contains": ["starfive"]
       }
     ]

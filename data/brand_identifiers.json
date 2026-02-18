@@ -58,5 +58,17 @@
         "contains": ["bb"]
       }
     ]
+  },
+  {
+    "identifier" : "Starfive",
+    "website": "https://www.starfivetech.com/en",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/starfive.png",
+    "color": "#a97f2c",
+    "filters": [
+      {
+        "data": "systemInfo.boardinfo.model",
+        "contains": ["starfive"]
+      }
+    ]
   }
 ]

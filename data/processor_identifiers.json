@@ -32,6 +32,10 @@
       {
         "data": "systemInfo.boardinfo.model",
         "contains": ["x1"]
+      },
+      {
+        "data": "systemInfo.cpuInfo.architecture",
+        "contains": ["riscv64"]
       }
     ]
   }

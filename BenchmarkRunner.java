@@ -26,22 +26,26 @@ import java.net.http.HttpResponse;
  * SBC Java Performance Benchmark Runner using Renaissance Suite
  * <p>
  * Detects system information, runs comprehensive Java benchmarks using Renaissance,
- * and saves results locally + pushes them to a configurable GitHub repository (in the "report" directory).
+ * and saves results locally + uploads them to GitHub via API (in the "report" directory).
  * <p>
  * Usage from source:
  * jbang BenchmarkRunner.java
  * <p>
  * Usage directly from GitHub:
- * jbang FDelporte/sbc-java-comparison@main/BenchmarkRunner.java
+ * jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.java
  * <p>
- * Add `--skip-push` if the results should not be pushed to GitHub.
+ * Add `--skip-push` if the results should not be uploaded to GitHub.
  * <p>
- * GitHub push configuration (environment variables):
- * - BENCH_GITHUB_REPO   (required if you want to override the default, unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
- * - BENCH_GITHUB_BRANCH (optional): default "main"
- * - BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
+ * GitHub upload configuration (environment variables):
+ * - GITHUB_TOKEN        (required unless --skip-push): Personal access token with 'repo' scope
+ *                       Create at: https://github.com/settings/tokens
+ * - BENCH_GITHUB_OWNER  (optional): Repository owner, default "FDelporte"
+ * - BENCH_GITHUB_REPO   (optional): Repository name, default "sbc-java-comparison"
+ * - BENCH_GITHUB_BRANCH (optional): Target branch, default "main"
  * <p>
- * Note: Authentication is handled by your Git setup (SSH agent, credential helper, etc.).
+ * Example with token:
+ * export GITHUB_TOKEN=ghp_yourtoken
+ * jbang BenchmarkRunner.java
  */
 public class BenchmarkRunner {
 
@@ -383,91 +387,94 @@ public class BenchmarkRunner {
     }
 
     private static void pushResultsToGitHubRepo(Path resultsFile) {
-        String repoUrl = getenvTrimmed("BENCH_GITHUB_REPO");
-        if (repoUrl == null || repoUrl.isBlank()) {
-            repoUrl = "https://github.com/FDelporte/sbc-java-comparison.git";
+        String token = getenvTrimmed("GITHUB_TOKEN");
+        if (token == null || token.isBlank()) {
+            System.out.println("⚠ GITHUB_TOKEN not set. Skipping GitHub upload.");
+            System.out.println("  To enable automatic upload, set GITHUB_TOKEN environment variable.");
+            System.out.println("  Create a token at: https://github.com/settings/tokens (needs 'repo' scope)");
+            return;
         }
 
+        String repoOwner = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_OWNER")).filter(s -> !s.isBlank()).orElse("FDelporte");
+        String repoName = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_REPO")).filter(s -> !s.isBlank()).orElse("sbc-java-comparison");
         String branch = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_BRANCH")).filter(s -> !s.isBlank()).orElse("main");
-        Path cloneDir = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_DIR"))
-                .filter(s -> !s.isBlank())
-                .map(Path::of)
-                .orElse(Path.of(System.getProperty("user.home"), ".cache", "sbc-java-comparison-report-repo"));
 
-        System.out.println("⚡ Pushing results file to GitHub repository...");
-        System.out.println("  Repo: " + redactRepoUrl(repoUrl));
+        System.out.println("⚡ Uploading results to GitHub via API...");
+        System.out.println("  Repo: " + repoOwner + "/" + repoName);
         System.out.println("  Branch: " + branch);
-        System.out.println("  Local clone: " + cloneDir.toAbsolutePath());
 
         try {
-            ensureGitAvailable();
+            String fileContent = Files.readString(resultsFile);
+            String base64Content = Base64.getEncoder().encodeToString(fileContent.getBytes());
+            String fileName = resultsFile.getFileName().toString();
+            String filePath = "report/" + fileName;
 
-            if (Files.notExists(cloneDir.resolve(".git"))) {
-                Files.createDirectories(cloneDir.getParent());
-                runGit(cloneDir.getParent(), "clone", "--branch", branch, "--single-branch", repoUrl, cloneDir.toString());
+            // Check if file exists to get SHA for update
+            String checkUrl = String.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s",
+                    repoOwner, repoName, filePath, branch);
+
+            HttpClient client = HttpClient.newBuilder().build();
+            HttpRequest checkRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(checkUrl))
+                    .header("Authorization", "Bearer " + token)
+                    .header("Accept", "application/vnd.github+json")
+                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> checkResponse = client.send(checkRequest, HttpResponse.BodyHandlers.ofString());
+            String existingSha = null;
+            if (checkResponse.statusCode() == 200) {
+                // File exists, extract SHA for update
+                String body = checkResponse.body();
+                int shaIndex = body.indexOf("\"sha\":");
+                if (shaIndex > 0) {
+                    int start = body.indexOf("\"", shaIndex + 6) + 1;
+                    int end = body.indexOf("\"", start);
+                    existingSha = body.substring(start, end);
+                }
+            }
+
+            // Create or update file
+            String apiUrl = String.format("https://api.github.com/repos/%s/%s/contents/%s",
+                    repoOwner, repoName, filePath);
+
+            String commitMessage = "Add benchmark results " + fileName;
+            StringBuilder jsonBody = new StringBuilder();
+            jsonBody.append("{");
+            jsonBody.append("\"message\":\"").append(commitMessage).append("\",");
+            jsonBody.append("\"content\":\"").append(base64Content).append("\",");
+            jsonBody.append("\"branch\":\"").append(branch).append("\"");
+            if (existingSha != null) {
+                jsonBody.append(",\"sha\":\"").append(existingSha).append("\"");
+            }
+            jsonBody.append("}");
+
+            HttpRequest uploadRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Authorization", "Bearer " + token)
+                    .header("Accept", "application/vnd.github+json")
+                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody.toString()))
+                    .build();
+
+            HttpResponse<String> uploadResponse = client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (uploadResponse.statusCode() == 200 || uploadResponse.statusCode() == 201) {
+                System.out.println("✓ Results uploaded to GitHub: " + filePath);
             } else {
-                runGit(cloneDir, "fetch", "origin", branch);
-                runGit(cloneDir, "checkout", branch);
-                runGit(cloneDir, "pull", "--ff-only", "origin", branch);
+                System.err.println("✗ Failed to upload to GitHub. Status: " + uploadResponse.statusCode());
+                System.err.println("  Response: " + uploadResponse.body());
+                throw new IOException("GitHub API returned status " + uploadResponse.statusCode());
             }
 
-            Path targetReportDir = cloneDir.resolve("report");
-            Files.createDirectories(targetReportDir);
-
-            Path targetFile = targetReportDir.resolve(resultsFile.getFileName().toString());
-            Files.copy(resultsFile, targetFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-            runGit(cloneDir, "add", "report/" + resultsFile.getFileName());
-
-            // Commit may fail if nothing changed; handle that gracefully.
-            String commitMsg = "Add benchmark results " + resultsFile.getFileName();
-            int commitExit = runGitAllowFailure(cloneDir, "commit", "-m", commitMsg);
-            if (commitExit != 0) {
-                System.out.println("  ↪ No commit created (possibly no changes to commit).");
-            }
-
-            runGit(cloneDir, "push", "origin", branch);
-
-            System.out.println("✓ Results pushed to GitHub (report/" + resultsFile.getFileName() + ")");
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to push results to GitHub: " + e.getMessage(), e);
+            throw new UncheckedIOException("Failed to upload results to GitHub: " + e.getMessage(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Git operation interrupted", e);
+            throw new RuntimeException("GitHub API operation interrupted", e);
         }
-    }
-
-    private static void ensureGitAvailable() throws IOException, InterruptedException {
-        int exit = runGitAllowFailure(Path.of("."), "--version");
-        if (exit != 0) {
-            throw new IllegalStateException("git is required but was not found or not runnable on PATH.");
-        }
-    }
-
-    private static void runGit(Path workingDir, String... args) throws IOException, InterruptedException {
-        int exit = runGitAllowFailure(workingDir, args);
-        if (exit != 0) {
-            throw new IOException("git command failed with exit code " + exit + " (args=" + Arrays.toString(args) + ")");
-        }
-    }
-
-    private static int runGitAllowFailure(Path workingDir, String... args) throws IOException, InterruptedException {
-        List<String> cmd = new ArrayList<>();
-        cmd.add("git");
-        cmd.addAll(Arrays.asList(args));
-
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        pb.directory(workingDir.toFile());
-        pb.redirectErrorStream(true);
-
-        Process p = pb.start();
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-            String line;
-            while ((line = r.readLine()) != null) {
-                System.out.println("  git> " + line);
-            }
-        }
-        return p.waitFor();
     }
 
     private static String getenvTrimmed(String key) {
@@ -475,19 +482,6 @@ public class BenchmarkRunner {
         return v == null ? null : v.trim();
     }
 
-    private static String redactRepoUrl(String repoUrl) {
-        // Avoid ever printing something that might include embedded credentials.
-        // - For https://user:token@github.com/... => https://***@github.com/...
-        // - For https://token@github.com/...     => https://***@github.com/...
-        int schemeIdx = repoUrl.indexOf("://");
-        if (schemeIdx > 0) {
-            int atIdx = repoUrl.indexOf('@', schemeIdx + 3);
-            if (atIdx > 0) {
-                return repoUrl.substring(0, schemeIdx + 3) + "***" + repoUrl.substring(atIdx);
-            }
-        }
-        return repoUrl;
-    }
 
     // Data classes
     record BenchmarkDefinition(String name, String description) {

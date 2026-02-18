@@ -97,7 +97,7 @@ public class BenchmarkRunner {
         Path resultsFile = saveResultsLocally(submission);
 
         if (!skipPush) {
-            pushResultsToGitHubRepo(resultsFile);
+            pushResultsToGitHubRepo(resultsFile, submission);
         } else {
             System.out.println("⚠ Skipping GitHub push (--skip-push flag set)");
         }
@@ -386,7 +386,7 @@ public class BenchmarkRunner {
         }
     }
 
-    private static void pushResultsToGitHubRepo(Path resultsFile) {
+    private static void pushResultsToGitHubRepo(Path resultsFile, BenchmarkSubmission submission) {
         String token = getenvTrimmed("GITHUB_TOKEN");
         if (token == null || token.isBlank()) {
             System.out.println("⚠ GITHUB_TOKEN not set. Skipping GitHub upload.");
@@ -439,7 +439,14 @@ public class BenchmarkRunner {
             String apiUrl = String.format("https://api.github.com/repos/%s/%s/contents/%s",
                     repoOwner, repoName, filePath);
 
-            String commitMessage = "Add benchmark results " + fileName;
+            // Extract board info for commit message
+            String boardModel = Optional.ofNullable(submission)
+                    .map(BenchmarkSubmission::systemInfo)
+                    .map(SystemInformation::boardInfo)
+                    .map(BoardInfo::model)
+                    .orElse("Unknown Board");
+
+            String commitMessage = "Add benchmark results for " + boardModel;
             StringBuilder jsonBody = new StringBuilder();
             jsonBody.append("{");
             jsonBody.append("\"message\":\"").append(commitMessage).append("\",");

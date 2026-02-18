@@ -131,12 +131,11 @@ public class BenchmarkRunner {
                     .GET()
                     .build();
 
-            // Download to byte array first, then write to file
-            HttpResponse<byte[]> response = client.send(request,
-                    HttpResponse.BodyHandlers.ofByteArray());
+            // Stream directly to file to minimize memory usage
+            HttpResponse<Path> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofFile(jarPath));
 
             if (response.statusCode() == 200) {
-                Files.write(jarPath, response.body());
                 System.out.println("  ✓ Downloaded: " + jarPath + " (" + Files.size(jarPath) / 1024 / 1024 + " MB)");
                 return jarPath;
             } else {

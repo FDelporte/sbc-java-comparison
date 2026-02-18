@@ -37,7 +37,7 @@ import java.net.http.HttpResponse;
  * Add `--skip-push` if the results should not be pushed to GitHub.
  * <p>
  * GitHub push configuration (environment variables):
- * - BENCH_GITHUB_REPO   (required unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
+ * - BENCH_GITHUB_REPO   (required if you want to override the default, unless --skip-push): e.g. git@github.com:<owner>/<repo>.git  OR  https://github.com/<owner>/<repo>.git
  * - BENCH_GITHUB_BRANCH (optional): default "main"
  * - BENCH_GITHUB_DIR    (optional): local clone dir; default: ~/.cache/sbc-java-comparison-report-repo
  * <p>
@@ -68,6 +68,7 @@ public class BenchmarkRunner {
         // Step 0: Load benchmarks
         System.out.println("[1/5] Loading benchmark definitions...");
         loadBenchmarks();
+        System.out.println();
 
         // Step 1: Detect system information
         System.out.println("[2/5] Detecting system information...");
@@ -384,10 +385,7 @@ public class BenchmarkRunner {
     private static void pushResultsToGitHubRepo(Path resultsFile) {
         String repoUrl = getenvTrimmed("BENCH_GITHUB_REPO");
         if (repoUrl == null || repoUrl.isBlank()) {
-            throw new IllegalStateException(
-                    "BENCH_GITHUB_REPO is required to push results (or run with --skip-push). " +
-                            "Example: git@github.com:<owner>/<repo>.git"
-            );
+            repoUrl = "https://github.com/FDelporte/sbc-java-comparison.git";
         }
 
         String branch = Optional.ofNullable(getenvTrimmed("BENCH_GITHUB_BRANCH")).filter(s -> !s.isBlank()).orElse("main");

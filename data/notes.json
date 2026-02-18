@@ -1,0 +1,11 @@
+[
+  {
+    "note": "Because of the limited amount of memory on this board, the benchmarks were executed with '--heap-limit 768m'.",
+    "filters": [
+      {
+        "data": "systemInfo.boardInfo.model",
+        "contains": ["BeagleBoard BeagleV-Fire"]
+      }
+    ]
+  }
+]

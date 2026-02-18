@@ -35,6 +35,7 @@ import java.net.http.HttpResponse;
  * jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.java
  * <p>
  * Add `--skip-push` if the results should not be uploaded to GitHub.
+ * Add `--heap-limit <size>` to limit heap memory for each benchmark (e.g., --heap-limit 768m)
  * <p>
  * GitHub upload configuration (environment variables):
  * - GITHUB_TOKEN        (required unless --skip-push): Personal access token with 'repo' scope
@@ -63,6 +64,15 @@ public class BenchmarkRunner {
 
     public static void main(String[] args) throws Exception {
         boolean skipPush = Arrays.asList(args).contains("--skip-push");
+        String heapLimit = null;
+
+        // Parse --heap-limit argument
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("--heap-limit") && i + 1 < args.length) {
+                heapLimit = args[i + 1];
+                break;
+            }
+        }
 
         System.out.println("=".repeat(70));
         System.out.println("  SBC Java Performance Benchmark Suite (Renaissance)");
@@ -87,7 +97,10 @@ public class BenchmarkRunner {
 
         // Step 3: Run benchmarks
         System.out.println("[4/5] Running Renaissance benchmarks...");
-        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar);
+        if (heapLimit != null) {
+            System.out.println("  → Using heap limit: " + heapLimit);
+        }
+        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar, heapLimit);
         System.out.println();
 
         // Step 4: Save + Push results
@@ -190,7 +203,7 @@ public class BenchmarkRunner {
         }
     }
 
-    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar) {
+    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar, String heapLimit) {
         List<BenchmarkResult> results = new ArrayList<>();
 
         for (BenchmarkDefinition benchmark : BENCHMARKS) {
@@ -202,13 +215,21 @@ public class BenchmarkRunner {
 
                 // Run benchmark 5 times (2 warmup + 3 measurement)
                 for (int i = 0; i < 5; i++) {
-                    ProcessBuilder pb = new ProcessBuilder(
-                            System.getProperty("java.home") + "/bin/java",
-                            "-jar",
-                            renaissanceJar.toString(),
-                            benchmarkName,
-                            "--repetitions", "1"
-                    );
+                    List<String> command = new ArrayList<>();
+                    command.add(System.getProperty("java.home") + "/bin/java");
+
+                    // Add heap limit if specified
+                    if (heapLimit != null) {
+                        command.add("-Xmx" + heapLimit);
+                    }
+
+                    command.add("-jar");
+                    command.add(renaissanceJar.toString());
+                    command.add(benchmarkName);
+                    command.add("--repetitions");
+                    command.add("1");
+
+                    ProcessBuilder pb = new ProcessBuilder(command);
                     pb.redirectErrorStream(true);
 
                     long start = System.currentTimeMillis();

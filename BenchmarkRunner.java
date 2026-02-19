@@ -51,7 +51,7 @@ import java.net.http.HttpResponse;
 public class BenchmarkRunner {
 
     private static final ObjectMapper MAPPER = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-    private static final String RENAISSANCE_VERSION = "0.15.0";
+    private static final String RENAISSANCE_VERSION = "0.16.1";
     private static final String RENAISSANCE_URL = "https://github.com/renaissance-benchmarks/renaissance/releases/download/v"
             + RENAISSANCE_VERSION + "/renaissance-mit-" + RENAISSANCE_VERSION + ".jar";
 

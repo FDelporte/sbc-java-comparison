@@ -2,6 +2,8 @@
 
 Tool to execute Java benchmarks on a single-board computer (SBC), upload the results to an API, and display them in a Vaadin web UI.
 
+The results collected in this repository are [displayed in a dashboard on webtechie.be/sbc/](https://webtechie.be/sbc/).
+
 ## Executing a Benchmark
 
 * Make sure Java 25 and JBang are installed on the SBC.
@@ -27,3 +29,11 @@ Tool to execute Java benchmarks on a single-board computer (SBC), upload the res
    --heap-limit 768m
    ```
 * If you need to re-run the benchmark after the script has been changed on GitHub, clear the JBang cache first with `jbang cache clear`.
+
+## Benchmark Summary
+
+Whenever a new benchmark is added, a GitHub Action is started which runs `SummarizeReports.java` to generate a summary report for each unique type of board.
+
+## Data Files
+
+The summary is stored in the `data` directory, where other data files are available, used in the dashboard on [webtechie.be/sbc/](https://webtechie.be/sbc/).

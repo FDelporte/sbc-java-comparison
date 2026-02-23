@@ -81,7 +81,7 @@ public class SummarizeReports {
             }
 
             CpuKey key = new CpuKey(
-                    nullToEmpty(cpu.model()),
+                    cleanString(cpu.model()),
                     cpu.logicalCores(),
                     cpu.physicalCores()
             );
@@ -108,6 +108,13 @@ public class SummarizeReports {
 
     private static String nullToEmpty(String s) {
         return s == null ? "" : s;
+    }
+
+    private static String cleanString(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s.replace("\u0000", "").trim();
     }
 
     record CpuKey(String model, int logicalCores, int physicalCores) {

@@ -619,4 +619,73 @@
     "description" : "In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily. Good for revealing memory bandwidth differences between boards."
   } ],
   "timestamp" : "2026-02-18T17:21:01.185049249Z"
+}, {
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "Raspberry Pi 5 Model B Rev 1.0",
+      "manufacturer" : "Unknown",
+      "revision" : "d04170"
+    },
+    "cpuInfo" : {
+      "model" : "Raspberry Pi 5 Model B Rev 1.0",
+      "identifier" : "ARM Family 8 Model Raspberry Pi 5 Model B Rev 1.0 Stepping r4p1",
+      "logicalCores" : 4,
+      "physicalCores" : 4,
+      "maxFreqMhz" : 2400,
+      "architecture" : "aarch64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 8059,
+      "availableMB" : 7273
+    },
+    "jvmInfo" : {
+      "version" : "25",
+      "runtimeVersion" : "25+36-LTS",
+      "vendorVersion" : "Zulu25.28+85-CA",
+      "vendor" : "Azul Systems, Inc.",
+      "vmName" : "OpenJDK 64-Bit Server VM"
+    },
+    "osInfo" : {
+      "family" : "Debian GNU/Linux",
+      "version" : "13",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "akka-uct",
+    "score" : 23047.333333333332,
+    "unit" : "ms",
+    "description" : "Actor-based concurrency. Interesting for comparing how well thread scheduling works across ARM, x86, and RISC-V kernels."
+  }, {
+    "name" : "fj-kmeans",
+    "score" : 12433.0,
+    "unit" : "ms",
+    "description" : "Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well the JVM utilizes all cores on different architectures."
+  }, {
+    "name" : "scala-kmeans",
+    "score" : 1860.6666666666667,
+    "unit" : "ms",
+    "description" : "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  }, {
+    "name" : "future-genetic",
+    "score" : 5384.666666666667,
+    "unit" : "ms",
+    "description" : "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  }, {
+    "name" : "mnemonics",
+    "score" : 6811.0,
+    "unit" : "ms",
+    "description" : "Serial JDK Streams (vs par-mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  }, {
+    "name" : "par-mnemonics",
+    "score" : 6463.666666666667,
+    "unit" : "ms",
+    "description" : "Parallel JDK Streams (vs mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  }, {
+    "name" : "db-shootout",
+    "score" : 73513.0,
+    "unit" : "ms",
+    "description" : "In-memory databases (Chronicle Map etc.), exercises memory subsystem heavily. Good for revealing memory bandwidth differences between boards."
+  } ],
+  "timestamp" : "2026-02-23T09:36:35.057681624Z"
 } ]

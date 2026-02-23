@@ -36,6 +36,7 @@ import java.net.http.HttpResponse;
  * <p>
  * Add `--skip-push` if the results should not be uploaded to GitHub.
  * Add `--heap-limit <size>` to limit heap memory for each benchmark (e.g., --heap-limit 768m)
+ * Add `--timeout <minutes>` to set timeout per benchmark run (default: 10 minutes)
  * <p>
  * GitHub upload configuration (environment variables):
  * - GITHUB_TOKEN        (required unless --skip-push): Personal access token with 'repo' scope
@@ -65,12 +66,24 @@ public class BenchmarkRunner {
     public static void main(String[] args) throws Exception {
         boolean skipPush = Arrays.asList(args).contains("--skip-push");
         String heapLimit = null;
+        int timeoutMinutes = 10; // Default timeout
 
-        // Parse --heap-limit argument
+        // Parse arguments
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--heap-limit") && i + 1 < args.length) {
                 heapLimit = args[i + 1];
-                break;
+                i++; // Skip next arg
+            } else if (args[i].equals("--timeout") && i + 1 < args.length) {
+                try {
+                    timeoutMinutes = Integer.parseInt(args[i + 1]);
+                    if (timeoutMinutes <= 0) {
+                        System.err.println("Warning: timeout must be positive, using default 10 minutes");
+                        timeoutMinutes = 10;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Warning: invalid timeout value, using default 10 minutes");
+                }
+                i++; // Skip next arg
             }
         }
 
@@ -100,7 +113,8 @@ public class BenchmarkRunner {
         if (heapLimit != null) {
             System.out.println("  → Using heap limit: " + heapLimit);
         }
-        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar, heapLimit);
+        System.out.println("  → Using timeout: " + timeoutMinutes + " minutes per run");
+        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar, heapLimit, timeoutMinutes);
         System.out.println();
 
         // Step 4: Save + Push results
@@ -203,7 +217,7 @@ public class BenchmarkRunner {
         }
     }
 
-    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar, String heapLimit) {
+    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar, String heapLimit, int timeoutMinutes) {
         List<BenchmarkResult> results = new ArrayList<>();
 
         for (BenchmarkDefinition benchmark : BENCHMARKS) {
@@ -245,13 +259,13 @@ public class BenchmarkRunner {
                         }
                     }
 
-                    // Wait for process with timeout (10 minutes per run)
-                    boolean completed = process.waitFor(10, java.util.concurrent.TimeUnit.MINUTES);
+                    // Wait for process with timeout
+                    boolean completed = process.waitFor(timeoutMinutes, java.util.concurrent.TimeUnit.MINUTES);
                     long duration = System.currentTimeMillis() - start;
 
                     if (!completed) {
                         process.destroyForcibly();
-                        throw new Exception("Benchmark timed out after 10 minutes");
+                        throw new Exception("Benchmark timed out after " + timeoutMinutes + " minutes");
                     }
 
                     int exitCode = process.exitValue();

@@ -213,8 +213,8 @@ public class BenchmarkRunner {
             try {
                 List<Long> times = new ArrayList<>();
 
-                // Run benchmark 5 times (2 warmup + 3 measurement)
-                for (int i = 0; i < 5; i++) {
+                // Run benchmark 7 times (2 warmup + 5 measurement)
+                for (int i = 0; i < 7; i++) {
                     List<String> command = new ArrayList<>();
                     command.add(System.getProperty("java.home") + "/bin/java");
 
@@ -258,20 +258,25 @@ public class BenchmarkRunner {
                     }
                 }
 
-                // Calculate average of measurement runs
-                if (!times.isEmpty()) {
-                    double avgTimeMs = times.stream().mapToLong(Long::longValue).average().orElse(0.0);
+                // Remove outliers and calculate average of remaining runs
+                if (!times.isEmpty() && times.size() >= 3) {
+                    List<Long> sortedTimes = times.stream().sorted().toList();
+
+                    // Remove highest and lowest values (outliers)
+                    List<Long> trimmedTimes = sortedTimes.subList(1, sortedTimes.size() - 1);
+
+                    double avgTimeMs = trimmedTimes.stream().mapToLong(Long::longValue).average().orElse(0.0);
                     results.add(new BenchmarkResult(
                             benchmarkName,
                             avgTimeMs,
                             "ms",
                             benchmark.description()
                     ));
-                    System.out.println("     ✓ Completed: " + String.format("%.2f ms", avgTimeMs));
+                    System.out.println("     ✓ Completed: " + String.format("%.2f ms", avgTimeMs)
+                            + " (trimmed " + sortedTimes.get(0) + "ms and " + sortedTimes.get(sortedTimes.size()-1) + "ms)");
                 } else {
-                    throw new Exception("No successful runs");
+                    throw new Exception("Insufficient successful runs");
                 }
-
             } catch (Exception e) {
                 System.err.println("     ✗ Failed: " + e.getMessage());
                 results.add(new BenchmarkResult(

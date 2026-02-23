@@ -245,8 +245,16 @@ public class BenchmarkRunner {
                         }
                     }
 
-                    int exitCode = process.waitFor();
+                    // Wait for process with timeout (10 minutes per run)
+                    boolean completed = process.waitFor(10, java.util.concurrent.TimeUnit.MINUTES);
                     long duration = System.currentTimeMillis() - start;
+
+                    if (!completed) {
+                        process.destroyForcibly();
+                        throw new Exception("Benchmark timed out after 10 minutes");
+                    }
+
+                    int exitCode = process.exitValue();
 
                     if (exitCode != 0) {
                         if (i == 0) { // Only print error on first attempt

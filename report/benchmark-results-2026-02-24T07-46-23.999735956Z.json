@@ -1,0 +1,60 @@
+{
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "ky x1 orangepi-rv2 board",
+      "manufacturer" : "Unknown",
+      "revision" : "Unknown"
+    },
+    "cpuInfo" : {
+      "model" : "Ky(R) X1",
+      "identifier" : "Family  Model Ky(R) X1 Stepping",
+      "logicalCores" : 8,
+      "physicalCores" : 4,
+      "maxFreqMhz" : 1600,
+      "architecture" : "riscv64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 7836,
+      "availableMB" : 6999
+    },
+    "jvmInfo" : {
+      "version" : "25.0.1",
+      "runtimeVersion" : "25.0.1+8-Ubuntu-124.04",
+      "vendorVersion" : null,
+      "vendor" : "Ubuntu",
+      "vmName" : "OpenJDK 64-Bit Server VM"
+    },
+    "osInfo" : {
+      "family" : "Ubuntu",
+      "version" : "24.04.3 LTS",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "fj-kmeans",
+    "score" : 31975.333333333332,
+    "unit" : "ms",
+    "description" : "Fork/join parallelism with K-Means clustering. Great for stressing the CPU and measuring how well the JVM utilizes all cores on different architectures."
+  }, {
+    "name" : "scala-kmeans",
+    "score" : 11984.333333333334,
+    "unit" : "ms",
+    "description" : "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  }, {
+    "name" : "future-genetic",
+    "score" : 31157.666666666668,
+    "unit" : "ms",
+    "description" : "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  }, {
+    "name" : "mnemonics",
+    "score" : 40543.0,
+    "unit" : "ms",
+    "description" : "Serial JDK Streams (vs par-mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  }, {
+    "name" : "par-mnemonics",
+    "score" : 36447.666666666664,
+    "unit" : "ms",
+    "description" : "Parallel JDK Streams (vs mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  } ],
+  "timestamp" : "2026-02-24T07:46:23.996505228Z"
+}

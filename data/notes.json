@@ -9,7 +9,7 @@
     ]
   },
   {
-    "note": "Not all tests are executed because of timeouts: '--skip-benchmarks akka-uct, db-shootout'",
+    "note": "Not all tests are executed because of timeouts: '--skip-benchmarks akka-uct,db-shootout'",
     "filters": [
       {
         "data": "systemInfo.boardInfo.model",

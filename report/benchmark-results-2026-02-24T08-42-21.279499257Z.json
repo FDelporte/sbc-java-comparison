@@ -1,0 +1,60 @@
+{
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "BeagleBoard BeagleV-Fire",
+      "manufacturer" : "Unknown",
+      "revision" : "Unknown"
+    },
+    "cpuInfo" : {
+      "model" : "BeagleBoard BeagleV-Fire",
+      "identifier" : "Family  Model  Stepping",
+      "logicalCores" : 4,
+      "physicalCores" : 4,
+      "maxFreqMhz" : 0,
+      "architecture" : "riscv64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 1542,
+      "availableMB" : 1317
+    },
+    "jvmInfo" : {
+      "version" : "25.0.2",
+      "runtimeVersion" : "25.0.2+10-Ubuntu-124.04",
+      "vendorVersion" : null,
+      "vendor" : "Ubuntu",
+      "vmName" : "OpenJDK 64-Bit Server VM"
+    },
+    "osInfo" : {
+      "family" : "Ubuntu",
+      "version" : "24.04.2 LTS",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "fj-kmeans",
+    "score" : -1.0,
+    "unit" : "ms",
+    "description" : "Error: Benchmark exceeded total timeout of 10 minutes"
+  }, {
+    "name" : "scala-kmeans",
+    "score" : 32403.333333333332,
+    "unit" : "ms",
+    "description" : "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  }, {
+    "name" : "future-genetic",
+    "score" : 77466.0,
+    "unit" : "ms",
+    "description" : "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  }, {
+    "name" : "mnemonics",
+    "score" : -1.0,
+    "unit" : "ms",
+    "description" : "Error: Benchmark exceeded total timeout of 10 minutes"
+  }, {
+    "name" : "par-mnemonics",
+    "score" : -1.0,
+    "unit" : "ms",
+    "description" : "Error: Benchmark exceeded total timeout of 10 minutes"
+  } ],
+  "timestamp" : "2026-02-24T08:42:21.271568063Z"
+}

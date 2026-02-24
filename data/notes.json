@@ -7,5 +7,18 @@
         "contains": ["BeagleBoard BeagleV-Fire"]
       }
     ]
+  },
+  {
+    "note": "Not all tests are executed because of timeouts: '--skip-benchmarks akka-uct, db-shootout'",
+    "filters": [
+      {
+        "data": "systemInfo.boardInfo.model",
+        "contains": ["BeagleBoard BeagleV-Fire"]
+      },
+      {
+        "data": "systemInfo.boardInfo.model",
+        "contains": ["ky x1 orangepi-rv2 board"]
+      }
+    ]
   }
 ]

@@ -37,6 +37,7 @@ import java.net.http.HttpResponse;
  * Add `--skip-push` if the results should not be uploaded to GitHub.
  * Add `--heap-limit <size>` to limit heap memory for each benchmark (e.g., --heap-limit 768m)
  * Add `--timeout <minutes>` to set timeout per benchmark run (default: 10 minutes)
+ * Add `--skip-benchmarks <names>` to skip specific benchmarks (comma-separated, e.g., --skip-benchmarks db-shootout,akka-uct)
  * <p>
  * GitHub upload configuration (environment variables):
  * - GITHUB_TOKEN        (required unless --skip-push): Personal access token with 'repo' scope
@@ -67,6 +68,7 @@ public class BenchmarkRunner {
         boolean skipPush = Arrays.asList(args).contains("--skip-push");
         String heapLimit = null;
         int timeoutMinutes = 10; // Default timeout
+        Set<String> skipBenchmarks = new HashSet<>();
 
         // Parse arguments
         for (int i = 0; i < args.length; i++) {
@@ -82,6 +84,12 @@ public class BenchmarkRunner {
                     }
                 } catch (NumberFormatException e) {
                     System.err.println("Warning: invalid timeout value, using default 10 minutes");
+                }
+                i++; // Skip next arg
+            } else if (args[i].equals("--skip-benchmarks") && i + 1 < args.length) {
+                String[] benchmarks = args[i + 1].split(",");
+                for (String b : benchmarks) {
+                    skipBenchmarks.add(b.trim());
                 }
                 i++; // Skip next arg
             }
@@ -114,7 +122,10 @@ public class BenchmarkRunner {
             System.out.println("  → Using heap limit: " + heapLimit);
         }
         System.out.println("  → Using timeout: " + timeoutMinutes + " minutes per run");
-        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar, heapLimit, timeoutMinutes);
+        if (!skipBenchmarks.isEmpty()) {
+            System.out.println("  → Skipping benchmarks: " + String.join(", ", skipBenchmarks));
+        }
+        List<BenchmarkResult> results = runRenaissanceBenchmarks(renaissanceJar, heapLimit, timeoutMinutes, skipBenchmarks);
         System.out.println();
 
         // Step 4: Save + Push results
@@ -217,16 +228,15 @@ public class BenchmarkRunner {
         }
     }
 
-    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar, String heapLimit, int timeoutMinutes) {
+    private static List<BenchmarkResult> runRenaissanceBenchmarks(Path renaissanceJar, String heapLimit, int timeoutMinutes, Set<String> skipBenchmarks) {
         List<BenchmarkResult> results = new ArrayList<>();
 
         for (BenchmarkDefinition benchmark : BENCHMARKS) {
             String benchmarkName = benchmark.name();
 
-            String arch = System.getProperty("os.arch");
-            if (arch.contains("riscv") &&
-                    (benchmarkName.equals("db-shootout") || benchmarkName.equals("akka-uct"))) {
-                System.out.println("     ⚠ Skipping (known issues on RISC-V)");
+            // Check if benchmark should be skipped
+            if (skipBenchmarks.contains(benchmarkName)) {
+                System.out.println("  → Skipping: " + benchmarkName);
                 continue;
             }
 

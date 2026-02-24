@@ -24,10 +24,9 @@ The results collected in this repository are [displayed in a dashboard on webtec
   jbang https://github.com/FDelporte/sbc-java-comparison/raw/main/BenchmarkRunner.java
   ```
 * If the benchmark is successful, the report will be uploaded to the GitHub repository which collects all the results.
-* If the benchmark fails because of memory constraints, add the limit parameter:
-   ```shell
-   --heap-limit 768m
-   ```
+* If the benchmark fails because of memory constraints, add a heap limit with `--heap-limit 768m` (default: none).
+* If certain tests take too long, set a maximum duration per test with `--timeout <minutes>` (default: 10 minutes).
+* If certain tests fail, you can exclude them with, for example, `--skip-benchmarks db-shootout,akka-uct` (default: none).
 * If you need to re-run the benchmark after the script has been changed on GitHub, clear the JBang cache first with `jbang cache clear`.
 
 ## Benchmark Summary

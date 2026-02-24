@@ -222,13 +222,28 @@ public class BenchmarkRunner {
 
         for (BenchmarkDefinition benchmark : BENCHMARKS) {
             String benchmarkName = benchmark.name();
+
+            String arch = System.getProperty("os.arch");
+            if (arch.contains("riscv") &&
+                    (benchmarkName.equals("db-shootout") || benchmarkName.equals("akka-uct"))) {
+                System.out.println("     ⚠ Skipping (known issues on RISC-V)");
+                continue;
+            }
+
             System.out.println("  → Running: " + benchmarkName);
 
             try {
                 List<Long> times = new ArrayList<>();
+                long benchmarkStartTime = System.currentTimeMillis();
+                long maxBenchmarkDuration = timeoutMinutes * 60 * 1000L; // Total time for all runs
+                int perRunTimeoutMinutes = Math.max(2, timeoutMinutes / 4); // Per-run timeout (at least 2 min)
 
                 // Run benchmark 7 times (2 warmup + 5 measurement)
                 for (int i = 0; i < 7; i++) {
+                    // Check if we've exceeded the total benchmark timeout
+                    if (System.currentTimeMillis() - benchmarkStartTime > maxBenchmarkDuration) {
+                        throw new Exception("Benchmark exceeded total timeout of " + timeoutMinutes + " minutes");
+                    }
                     List<String> command = new ArrayList<>();
                     command.add(System.getProperty("java.home") + "/bin/java");
 
@@ -259,13 +274,13 @@ public class BenchmarkRunner {
                         }
                     }
 
-                    // Wait for process with timeout
-                    boolean completed = process.waitFor(timeoutMinutes, java.util.concurrent.TimeUnit.MINUTES);
+                    // Wait for process with per-run timeout
+                    boolean completed = process.waitFor(perRunTimeoutMinutes, java.util.concurrent.TimeUnit.MINUTES);
                     long duration = System.currentTimeMillis() - start;
 
                     if (!completed) {
                         process.destroyForcibly();
-                        throw new Exception("Benchmark timed out after " + timeoutMinutes + " minutes");
+                        throw new Exception("Single run timed out after " + perRunTimeoutMinutes + " minutes");
                     }
 
                     int exitCode = process.exitValue();

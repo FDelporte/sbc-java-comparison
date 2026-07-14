@@ -70,5 +70,17 @@
         "contains": ["starfive"]
       }
     ]
+  },
+  {
+    "identifier" : "Banana Pi",
+    "website": "https://www.banana-pi.org/",
+    "logo": "https://raw.githubusercontent.com/FDelporte/sbc-java-comparison/refs/heads/main/logo/bananapi.png",
+    "color": "#0269b8",
+    "filters": [
+      {
+        "data": "systemInfo.boardInfo.model",
+        "contains": ["bananapi"]
+      }
+    ]
   }
 ]

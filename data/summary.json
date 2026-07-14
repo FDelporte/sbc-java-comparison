@@ -603,7 +603,7 @@
   "systemInfo" : {
     "boardInfo" : {
       "model" : "Bananapi BPI-M4Zero",
-      "manufacturer" : "Bananapi BPI-M4Zero",
+      "manufacturer" : "Bananapi",
       "revision" : "0003"
     },
     "cpuInfo" : {

@@ -727,4 +727,63 @@
     "description" : "Error: Insufficient successful runs"
   } ],
   "timestamp" : "2026-07-15T09:33:34.632946953Z"
+}, {
+  "systemInfo" : {
+    "boardInfo" : {
+      "model" : "Raspberry Pi Zero 2 W Rev 1.0",
+      "manufacturer" : "Unknown",
+      "revision" : "902120"
+    },
+    "cpuInfo" : {
+      "model" : "Raspberry Pi Zero 2 W Rev 1.0",
+      "identifier" : "ARM Family 8 Model Raspberry Pi Zero 2 W Rev 1.0 Stepping r0p4",
+      "logicalCores" : 4,
+      "physicalCores" : 4,
+      "maxFreqMhz" : 1000,
+      "architecture" : "aarch64"
+    },
+    "memoryInfo" : {
+      "totalMB" : 415,
+      "availableMB" : 46
+    },
+    "jvmInfo" : {
+      "version" : "25.0.3",
+      "runtimeVersion" : "25.0.3+9-LTS",
+      "vendorVersion" : "Zulu25.34+17-CA",
+      "vendor" : "Azul Systems, Inc.",
+      "vmName" : "OpenJDK 64-Bit Server VM"
+    },
+    "osInfo" : {
+      "family" : "Debian GNU/Linux",
+      "version" : "13",
+      "bitness" : 64
+    }
+  },
+  "results" : [ {
+    "name" : "fj-kmeans",
+    "score" : -1.0,
+    "unit" : "ms",
+    "description" : "Error: Benchmark exceeded total timeout of 10 minutes"
+  }, {
+    "name" : "scala-kmeans",
+    "score" : 14459.666666666666,
+    "unit" : "ms",
+    "description" : "Single-threaded K-Means in Scala collections. Nice contrast to fj-kmeans for single-core vs multi-core comparison."
+  }, {
+    "name" : "future-genetic",
+    "score" : 41639.0,
+    "unit" : "ms",
+    "description" : "Genetic algorithm using the Jenetics library and futures. Uses the Jenetics library with futures, exercises the thread pool and GC together nicely."
+  }, {
+    "name" : "mnemonics",
+    "score" : 58260.333333333336,
+    "unit" : "ms",
+    "description" : "Serial JDK Streams (vs par-mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  }, {
+    "name" : "par-mnemonics",
+    "score" : 53128.333333333336,
+    "unit" : "ms",
+    "description" : "Parallel JDK Streams (vs mnemonics). Short, deterministic, and the parallel vs serial delta is very revealing across architectures with different core counts/memory bandwidth."
+  } ],
+  "timestamp" : "2026-07-15T12:16:31.210896605Z"
 } ]

@@ -1,8 +1,8 @@
 {
   "systemInfo" : {
     "boardInfo" : {
-      "model" : "spacemit k1-x deb1 board",
-      "manufacturer" : "Unknown",
+      "model" : "Bananapi BPI-F3",
+      "manufacturer" : "Bananapi",
       "revision" : "Unknown"
     },
     "cpuInfo" : {
